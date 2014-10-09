@@ -91,15 +91,17 @@ module Undress
 
     # Fixup a badly nested list such as <ul> sibling to <li> instead inside of <li>.
     def fixup_list(list)
-      list.children.each {|e| fixup_list(e) if e.elem? && e.name =~ /ol|ul/}
+      if list.children
+        list.children.each {|e| fixup_list(e) if e.elem? && e.name =~ /ol|ul/}
 
-      if list.parent.name != "li"
-        li_side = list.next_sibling     if list.next_sibling     && list.next_sibling.name     == "li"
-        li_side = list.previous_sibling if list.previous_sibling && list.previous_sibling.name == "li"
+        if list.parent.name != "li"
+          li_side = list.next_sibling     if list.next_sibling     && list.next_sibling.name     == "li"
+          li_side = list.previous_sibling if list.previous_sibling && list.previous_sibling.name == "li"
 
-        if li_side
-          li_side.inner_html = "#{li_side.inner_html}#{list.to_html}"
-          list.parent.replace_child(list, "")
+          if li_side
+            li_side.inner_html = "#{li_side.inner_html}#{list.to_html}"
+            list.parent.replace_child(list, nil)
+          end
         end
       end
     end
