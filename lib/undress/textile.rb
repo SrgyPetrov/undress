@@ -45,7 +45,7 @@ module Undress
     # inline elements
     rule_for(:a) {|e|
       title = e.has_attribute?("title") ? " (#{e["title"]})" : ""
-      "[#{content_of(e)}#{title}:#{e["href"]}]"
+      "[\"#{content_of(e)}\"#{title}:#{e["href"]}]"
     }
     rule_for(:img) {|e|
       alt = e["alt"]
@@ -54,7 +54,7 @@ module Undress
     }
     rule_for(:span)  {|e| attributes(e) == "" ? content_of(e) : wrap_with('%', e) }
     rule_for(:strong, :b)  {|e| wrap_with('*', e) }
-    rule_for(:em)      {|e| wrap_with('_', e) }
+    rule_for(:em, :i)      {|e| wrap_with('_', e) }
     rule_for(:code)    {|e| "@#{attributes(e)}#{content_of(e)}@" }
     rule_for(:cite)    {|e| "??#{attributes(e)}#{content_of(e)}??" }
     rule_for(:sup)     {|e| wrap_with('^', e, surrounded_by_whitespace?(e)) }
