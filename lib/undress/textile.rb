@@ -78,7 +78,7 @@ module Undress
     end
 
     # text formatting and layout
-    rule_for(:div)    {|e| "#{content_of(e)}" }
+    rule_for(:div)    {|e| "\n#{content_of(e)}\n" }
     rule_for(:p) do |e|
       at = ( attributes(e) != "" ) ?
         "#{e.name}#{attributes(e)}. " : ""
