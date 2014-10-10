@@ -78,8 +78,7 @@ module Undress
     end
 
     # text formatting and layout
-    rule_for(:div)    {|e| "\n#{content_of(e)}\n" }
-    rule_for(:p) do |e|
+    rule_for(:p, :div) do |e|
       at = ( attributes(e) != "" ) ?
         "#{e.name}#{attributes(e)}. " : ""
       if e.parent and e.parent.name == 'blockquote'
@@ -96,8 +95,6 @@ module Undress
         "\n\n#{at}#{content_of(e)}\n\n"
       end
     end
-
-
 
     rule_for(:br)         {|e| "\n" unless e.parent.name == 'td' and e.last_child?}
     rule_for(:blockquote) {|e| "\n\nbq#{attributes(e)}. #{content_of(e)}\n\n" }
