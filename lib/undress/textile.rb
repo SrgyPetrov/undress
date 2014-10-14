@@ -117,7 +117,13 @@ module Undress
     # lists
     rule_for(:li) {|e|
       token = e.parent.name == "ul" ? "*" : "#"
-      nesting = e.ancestors.inject(1) {|total,node| total + (%(ul ol).include?(node.name) ? 0 : 1) }
+      nesting = e.ancestors.inject(1) do |total, node|
+        if not %(ul ol li).include?(node.name)
+          total
+        else
+          total + (%(ul ol).include?(node.name) ? 0 : 1)
+        end
+      end
       "\n#{token * nesting} #{content_of(e)}"
     }
     rule_for(:ul, :ol) {|e|
@@ -137,7 +143,7 @@ module Undress
 
     # tables
     rule_for(:table)   {|e| complex_table?(e) ? html_node(e) :
-      "#{table_attributes(e)}\n#{content_of(e)}" }
+      "#{table_attributes(e)}\n#{content_of(e)}\n" }
     rule_for(:tr)      {|e| complex_table?(e) ? html_node(e) :
       %Q(#{"\n\n" if tr_without_table?(e)}#{row_attributes(e)}#{content_of(e)}|\n) }
     rule_for(:td, :th) {|e| complex_table?(e) ? html_node(e) :
