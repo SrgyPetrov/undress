@@ -169,21 +169,31 @@ module Undress
     # useful to convert for example a letter italic inside a word
     def complete_word?(node)
       p, n = node.previous_node, node.next_node
+      return true if p.to_s.empty? && n.to_s.empty?
 
-      return true if !p && !n
-
-      if p.respond_to?(:content)
-        return false if p.content       !~ /\s$/
-      elsif p.respond_to?(:inner_html)
-        return false if p.inner_html    !~ /\s$/
-      end
+      p_check, n_check = true, true
+      # puts "node = .%{node}." % { :node => node }
+      # puts "p = .%{p}." % { :p => p.to_s }
+      # puts "n = .%{n}." % { :n => n.to_s }
+      # puts '++++++++++++++++++++++++++++++++'
 
       if n.respond_to?(:content)
-        return false if n.content       !~ /^\s/
+        n_check = n.content =~ /^\s|^\./ ? true : false
       elsif n.respond_to?(:inner_html)
-        return false if n.inner_html    !~ /^\s/
+        n_check = n.inner_html =~ /^\s/ ? true : false
       end
-      true
+
+      if p.respond_to?(:content)
+        p_check = p.content =~ /\s$|\.$/ ? true : false
+      elsif p.respond_to?(:inner_html)
+        p_check = p.inner_html =~ /\s$/ ? true : false
+      end
+      # puts "p_check = .%{p_check}." % { :p_check => p_check }
+      # puts "n_check = .%{n_check}." % { :n_check => n_check }
+
+      return true if p_check && n_check
+
+      false
     end
 
     # Hash of attributes, according to the white list. By default, no attributes

@@ -45,20 +45,20 @@ module Undress
     # inline elements
     rule_for(:a) {|e|
       title = e.has_attribute?("title") ? " (#{e["title"]})" : ""
-      "[\"#{content_of(e)}\"#{title}:#{e["href"]}]"
+      " [\"#{content_of(e)}\"#{title}:#{e["href"]}] "
     }
     rule_for(:img) {|e|
       alt = e["alt"]
       alt = "(#{alt})" if alt and alt != ""
-      "!#{attributes(e)}#{e["src"]}#{alt}!"
+      " !#{attributes(e)}#{e["src"]}#{alt}! "
     }
     rule_for(:span)  {|e| attributes(e) == "" ? content_of(e) : wrap_with('%', e) }
     rule_for(:strong, :b)  {|e| wrap_with('*', e) }
     rule_for(:em, :i)      {|e| wrap_with('_', e) }
     rule_for(:code)    {|e| "@#{attributes(e)}#{content_of(e)}@" }
     rule_for(:cite)    {|e| "??#{attributes(e)}#{content_of(e)}??" }
-    rule_for(:sup)     {|e| wrap_with('^', e, surrounded_by_whitespace?(e)) }
-    rule_for(:sub)     {|e| wrap_with('~', e, surrounded_by_whitespace?(e)) }
+    rule_for(:sup)     {|e| wrap_with('^', e) }
+    rule_for(:sub)     {|e| wrap_with('~', e) }
     rule_for(:ins)     {|e| wrap_with('+', e) }
     rule_for(:del)     {|e| wrap_with('-', e) }
     rule_for(:acronym) {|e| e.has_attribute?("title") ? "#{content_of(e)}(#{e["title"]})" : content_of(e) }
@@ -70,31 +70,18 @@ module Undress
       postfix = content.chomp! ? "<br/>" : ""
       postfix = content.sub!(/(&nbsp;|\s)+$/, "") ? " #{postfix}" : postfix
       return if content == ""
+      table_parent = node.ancestors.select{ |c| c.name == 'td' }
+      space = table_parent.empty? ? "" : " "
       if no_wrap
-        "#{prefix}#{char}#{attributes(node)}#{content}#{char}#{postfix}"
+        "#{space}#{prefix}#{char}#{attributes(node)}#{content}#{char}#{postfix}#{space}"
       else
-        "#{prefix}[#{char}#{attributes(node)}#{content}#{char}]#{postfix}"
+        "#{space}#{prefix}[#{char}#{attributes(node)}#{content}#{char}]#{postfix}#{space}"
       end
     end
 
     # text formatting and layout
-    rule_for(:p, :div) do |e|
-      at = ( attributes(e) != "" ) ?
-        "#{e.name}#{attributes(e)}. " : ""
-      if e.parent and e.parent.name == 'blockquote'
-        "#{at}#{content_of(e)}\n\n"
-      elsif e.search('table').any?
-        html_node(e, true)
-      elsif e.ancestor('table')
-        # can't use p textile in tables
-        html_node(e, complex_table?(e))
-      elsif content_of(e).match('\A(<br\s?\/?>|\s|\n)*\z')
-        "\n\n"
-      else
-        at = 'div.' if at == "" and e.name == 'div'
-        "\n\n#{at}#{content_of(e)}\n\n"
-      end
-    end
+    rule_for(:div, :p)    {|e| "\n#{content_of(e)}\n" }
+
 
     rule_for(:br)         {|e| "\n" unless e.parent.name == 'td' and e.last_child?}
     rule_for(:blockquote) {|e| "\n\nbq#{attributes(e)}. #{content_of(e)}\n\n" }
