@@ -50,7 +50,11 @@ module Undress
     rule_for(:img) {|e|
       alt = e["alt"]
       alt = "(#{alt})" if alt and alt != ""
-      " !#{attributes(e)}#{e["src"]}#{alt}! "
+      if e.parent.name == 'a'
+        "!#{attributes(e)}#{e["src"]}#{alt}!"
+      else
+        " !#{attributes(e)}#{e["src"]}#{alt}! "
+      end
     }
     rule_for(:span)  {|e| attributes(e) == "" ? content_of(e) : wrap_with('%', e) }
     rule_for(:strong, :b)  {|e| wrap_with('*', e) }
